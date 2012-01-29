@@ -26,21 +26,10 @@
 
 /**
  * @package Magic
- * @subpackage Service
+ * @subpackage Configuration
  */
-class Tx_Magic_Service_Tca implements t3lib_Singleton {
+class Tx_Magic_Configuration_Columns {
 
-	/**
-	 * Writes to global scope all TCA for an entire extension
-	 *
-	 * @param Tx_Magic_Collection_ExtensionCollection $extensionCollection
-	 * @return void
-	 */
-	public function renderTcaForExtension(Tx_Magic_Collection_ExtensionCollection $extensionCollection) {
-		foreach ($extensionCollection->getModelCollections() as $modelCollection) {
-			$this->renderTcaForModel($modelCollection);
-		}
-	}
 
 	/**
 	 * Writes to global scope the TCA necessary to drive the Model configured
@@ -58,7 +47,7 @@ class Tx_Magic_Service_Tca implements t3lib_Singleton {
 	/**
 	 * @param Tx_Magic_Collection_ModelCollection $modelCollection
 	 */
-	protected function renderRootBlock(Tx_Magic_Collection_ModelCollection $modelCollection) {
+	public function renderRootBlock(Tx_Magic_Collection_ModelCollection $modelCollection) {
 		$tableName = $modelCollection->getTableName();
 		$extensionKey = $modelCollection->getExtensionKey();
 		t3lib_extMgm::addLLrefForTCAdescr($tableName, 'EXT:' . $extensionKey . '/Resources/Private/Language/locallang_csh_' . $tableName . '.xml');
@@ -93,9 +82,15 @@ class Tx_Magic_Service_Tca implements t3lib_Singleton {
 	 * @return array
 	 */
 	protected function renderTypesBlock(Tx_Magic_Collection_ModelCollection $modelCollection) {
+		$properties = array();
+		foreach ($modelCollection->getPropertyAnnotations() as $propertyName=>$annotations) {
+			$underscoredPropertyName = Tx_Extbase_Utility_Extension::convertCamelCaseToLowerCaseUnderscored($propertyName);
+			array_push($properties, $underscoredPropertyName);
+		}
 		return array(
 			'1' => array(
-				'showitem' => 'sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, name, description, purchased, replenished_date, food, pictures,--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'
+				'showitem' => 'sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, '
+				. implode(', ', $properties) . ',--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'
 			),
 		);
 	}
@@ -134,14 +129,24 @@ class Tx_Magic_Service_Tca implements t3lib_Singleton {
 	 */
 	protected function renderColumnsBlock(Tx_Magic_Collection_ModelCollection $modelCollection) {
 		$columns = $this->renderColumnDefaults($modelCollection);
+		$tableName = $modelCollection->getTableName();
+		$extensionKey = $modelCollection->getExtensionKey();
 		foreach ($modelCollection->getPropertyAnnotations() as $propertyName=>$annotations) {
+			$exclude = 0; // TODO: parse exclude-field annotation
+			$label = ''; // TODO: parse label annotation
 			$underScoredPropertyName = Tx_Extbase_Utility_Extension::convertCamelCaseToLowerCaseUnderscored($propertyName);
-			$provider = $this->resolveColumnProvider($propertyName, $modelCollection);
-			$provider->setModelCollection($modelCollection);
-			$column = $provider->getColumn($propertyName, $modelCollection);
-			if (is_array($column) === TRUE && count($column) > 0) {
-				$columns[$underScoredPropertyName] = $column;
+			if ($label == '') {
+				$label = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/locallang_db.xml:' . $tableName . '.' . $underScoredPropertyName;
 			}
+			$provider = $this->resolveColumnProvider($propertyName, $modelCollection);
+			$provider->setPropertyName($propertyName);
+			$provider->setModelCollection($modelCollection);
+			$provider->setOptions($annotations['Field']->getArgument('options'));
+			$columns[$underScoredPropertyName] = array(
+				'exclude' => intval($exclude),
+				'label' => $label,
+				'config' => $provider
+			);
 		}
 		return $columns;
 	}
@@ -159,7 +164,7 @@ class Tx_Magic_Service_Tca implements t3lib_Singleton {
 			}
 		}
 		if (class_exists($providerClassName) === FALSE) {
-			$providerClassName = 'Tx_Magic_Provider_Columns_DefaultColumnsProvider';
+			$providerClassName = 'Tx_Magic_Provider_Columns_StandardColumnsProvider';
 		}
 		$instance = Tx_Magic_Core::$objectManager->get($providerClassName);
 		return $instance->getColumns($modelCollection);
@@ -173,7 +178,7 @@ class Tx_Magic_Service_Tca implements t3lib_Singleton {
 	protected function resolveColumnProvider($propertyName, Tx_Magic_Collection_ModelCollection $modelCollection) {
 		$propertyAnnotations = $modelCollection->getPropertyAnnotations();
 		$propertyAnnotation = $propertyAnnotations[$propertyName]['Field'];
-		$defaultProviderClassName = 'Tx_Magic_Provider_Column_DefaultColumnProvider';
+		$defaultProviderClassName = 'Tx_Magic_Provider_Column_StandardColumnProvider';
 		if ($propertyAnnotation === NULL) {
 			return Tx_Magic_Core::$objectManager->create($defaultProviderClassName);
 		}

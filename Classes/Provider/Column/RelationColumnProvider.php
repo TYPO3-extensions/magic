@@ -26,39 +26,19 @@
 
 /**
  * @package Magic
- * @subpackage Provider
+ * @subpackage Provider/Column
  */
-interface Tx_Magic_Provider_ColumnProviderInterface extends ArrayAccess {
+class Tx_Magic_Provider_Column_RelationColumnProvider extends Tx_Magic_Provider_Column_AbstractColumnProvider implements Tx_Magic_Provider_ColumnProviderInterface {
 
 	/**
 	 * @return array
 	 */
-	public function generateConfiguration();
-
-	/**
-	 * @param Tx_Magic_collection_ModelCollection $modelCollection
-	 */
-	public function setModelCollection($modelCollection);
-
-	/**
-	 * @param string $propertyName
-	 */
-	public function setPropertyName($propertyName);
-
-	/**
-	 * @param array $configuration
-	 */
-	public function setConfiguration($configuration);
-
-	/**
-	 * @param string $label
-	 */
-	public function setLabel($label);
-
-	/**
-	 * @param integer $exclude
-	 */
-	public function setExclude($exclude);
+	public function generateConfiguration() {
+		$this->configuration = array(
+			'type' => 'select',
+			'foreign_table' => $this->options['foreignTable']
+		);
+	}
 
 }
 

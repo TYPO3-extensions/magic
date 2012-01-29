@@ -32,7 +32,7 @@
  * @package Magic
  * @subpackage Provider/Columns
  */
-class Tx_Magic_Provider_Columns_DefaultColumnsProvider implements Tx_Magic_Provider_ColumnsProviderInterface {
+class Tx_Magic_Provider_Columns_StandardColumnsProvider implements Tx_Magic_Provider_ColumnsProviderInterface {
 
 	/**
 	 * @param Tx_Magic_Collection_ModelCollection $modelCollection

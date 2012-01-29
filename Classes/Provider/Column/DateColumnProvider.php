@@ -31,11 +31,17 @@
 class Tx_Magic_Provider_Column_DateColumnProvider extends Tx_Magic_Provider_Column_AbstractColumnProvider implements Tx_Magic_Provider_ColumnProviderInterface {
 
 	/**
-	 * @param string $propertyName
 	 * @return array
 	 */
-	public function getColumn($propertyName) {
-
+	public function generateConfiguration() {
+		$this->configuration = array(
+			'type' => 'input',
+			'size' => 12,
+			'max' => 20,
+			'eval' => 'datetime',
+			'checkbox' => 1,
+			'default' => time()
+		);
 	}
 
 }

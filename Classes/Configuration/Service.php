@@ -26,39 +26,34 @@
 
 /**
  * @package Magic
- * @subpackage Provider
+ * @subpackage Configuration
  */
-interface Tx_Magic_Provider_ColumnProviderInterface extends ArrayAccess {
+class Tx_Magic_Configuration_Service {
 
 	/**
-	 * @return array
+	 * @var Tx_Magic_Configuration_Columns
 	 */
-	public function generateConfiguration();
+	protected $columnConfigurationService;
 
 	/**
-	 * @param Tx_Magic_collection_ModelCollection $modelCollection
+	 * @param Tx_Magic_Configuration_Columns $columnConfigurationService
 	 */
-	public function setModelCollection($modelCollection);
+	public function injectColumnConfigurationService(Tx_Magic_Configuration_Columns $columnConfigurationService) {
+		$this->columnConfigurationService = $columnConfigurationService;
+	}
 
 	/**
-	 * @param string $propertyName
+	 * Writes to global scope all TCA for an entire extension
+	 *
+	 * @param Tx_Magic_Collection_ExtensionCollection $extensionCollection
+	 * @return void
 	 */
-	public function setPropertyName($propertyName);
+	public function renderTcaForExtension(Tx_Magic_Collection_ExtensionCollection $extensionCollection) {
+		foreach ($extensionCollection->getModelCollections() as $modelCollection) {
+			$this->columnConfigurationService->renderTcaForModel($modelCollection);
+		}
+	}
 
-	/**
-	 * @param array $configuration
-	 */
-	public function setConfiguration($configuration);
-
-	/**
-	 * @param string $label
-	 */
-	public function setLabel($label);
-
-	/**
-	 * @param integer $exclude
-	 */
-	public function setExclude($exclude);
 
 }
 

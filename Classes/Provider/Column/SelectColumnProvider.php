@@ -31,11 +31,36 @@
 class Tx_Magic_Provider_Column_SelectColumnProvider extends Tx_Magic_Provider_Column_AbstractColumnProvider implements Tx_Magic_Provider_ColumnProviderInterface {
 
 	/**
-	 * @param string $propertyName
 	 * @return array
 	 */
-	public function getColumn($propertyName) {
+	public function generateConfiguration() {
+		if (isset($this->options['range'])) {
+			$items = $this->generateRangeItems($this->options['range'], $this->options['interval']);
+		}
+		$this->configuration = array(
+			'type' => 'select',
+			'mode' => $this->options['mode'],
+			'items' => (array) $items
+		);
+	}
 
+	/**
+	 * Generates a set of <option> in a $range (fx 10-50) incremeted by $interval
+	 * @param string $rangePair
+	 * @param integer $interval
+	 */
+	public function generateRangeItems($rangePair, $interval) {
+		if (intval($interval) === 0) {
+			$interval = 1;
+		}
+		$pair = t3lib_div::trimExplode('-', $rangePair);
+		$items = array();
+		for ($i=$pair[0]; $i<$pair[1]; $i+=$interval) {
+			$item = array(strval($i), strval($i));
+			array_push($items, $item);
+		}
+
+		return $items;
 	}
 
 }

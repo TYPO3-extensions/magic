@@ -28,7 +28,7 @@
  * @package Magic
  * @subpackage Provider/Column
  */
-class Tx_Magic_Provider_Column_AbstractColumnProvider {
+abstract class Tx_Magic_Provider_Column_AbstractColumnProvider {
 
 	/**
 	 * @var Tx_Magic_Collection_ModelCollection
@@ -39,6 +39,32 @@ class Tx_Magic_Provider_Column_AbstractColumnProvider {
 	 * @var Tx_Extbase_Reflection_Service
 	 */
 	protected $reflectionService;
+
+	/**
+	 * @var string
+	 */
+	protected $propertyName;
+
+	/**
+	 * @var array
+	 */
+	protected $configuration = array();
+
+	/**
+	 * @var array
+	 */
+	protected $options = array();
+
+	/**
+	 * @var string
+	 */
+	protected $label;
+
+	/**
+	 * @var integer
+	 */
+	protected $exclude;
+
 
 	/**
 	 * @param Tx_Extbase_Reflection_Service $reflectionService
@@ -55,23 +81,73 @@ class Tx_Magic_Provider_Column_AbstractColumnProvider {
 	}
 
 	/**
-	 * @param array $configuration
-	 * @param string $label
-	 * @param integer $exclude
-	 * @return array
+	 * @param string $propertyName
 	 */
-	protected function render($propertyName, $configuration, $label=NULL, $exclude=0) {
-		$tableName = $this->modelCollection->getTableName();
-		$extensionKey = $this->modelCollection->getExtensionKey();
-		$underScoredPropertyName = Tx_Extbase_Utility_Extension::convertCamelCaseToLowerCaseUnderscored($propertyName);
-		if ($label === NULL) {
-			$label = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/locallang_db.xml:' . $tableName . '.' . $underScoredPropertyName;
-		}
-		return array(
-			'exclude' => $exclude,
-			'label' => $label,
-			'config' => $configuration
-		);
+	public function setPropertyName($propertyName) {
+		$this->propertyName = $propertyName;
+	}
+
+	/**
+	 * @param array $configuration
+	 */
+	public function setConfiguration($configuration) {
+		$this->configuration = $configuration;
+	}
+
+	/**
+	 * @param array $options
+	 */
+	public function setOptions($options) {
+		$this->options = (array) $options;
+	}
+
+	/**
+	 * @param string $label
+	 */
+	public function setLabel($label) {
+		$this->label = $label;
+	}
+
+	/**
+	 * @param integer $exclude
+	 */
+	public function setExclude($exclude) {
+		$this->exclude = $exclude;
+	}
+
+	/**
+	 * @param mixed $offset
+	 * @return boolean
+	 */
+	public function offsetExists($offset) {
+		if (count($this->configuration) === 0) $this->generateConfiguration();
+		return isset($this->configuration[$offset]);
+	}
+
+	/**
+	 * @param mixed $offset
+	 * @return mixed
+	 */
+	public function offsetGet($offset) {
+		if (count($this->configuration) === 0) $this->generateConfiguration();
+		return $this->configuration[$offset];
+	}
+
+	/**
+	 * @param mixed $offset
+	 * @param mixed $value
+	 */
+	public function offsetSet($offset, $value) {
+		if (count($this->configuration) === 0) $this->generateConfiguration();
+		$this->configuration[$offset] = $value;
+	}
+
+	/**
+	 * @param mixed $offset
+	 */
+	public function offsetUnset($offset) {
+		if (count($this->configuration) === 0) $this->generateConfiguration();
+		unset($this->configuration[$offset]);
 	}
 
 }

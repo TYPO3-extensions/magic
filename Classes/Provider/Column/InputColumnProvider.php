@@ -31,14 +31,12 @@
 class Tx_Magic_Provider_Column_InputColumnProvider extends Tx_Magic_Provider_Column_AbstractColumnProvider implements Tx_Magic_Provider_ColumnProviderInterface {
 
 	/**
-	 * @param string $propertyName
 	 * @return array
 	 */
-	public function getColumn($propertyName) {
-		$configuration = array(
+	public function generateConfiguration() {
+		$this->configuration = array(
 			'type' => 'input'
 		);
-		return $this->render($propertyName, $configuration);
 	}
 
 }

@@ -54,10 +54,10 @@ class Tx_Magic_Core {
 	public static $annotationParser;
 
 	/**
-	 * @var Tx_Magic_Service_Tca
+	 * @var Tx_Magic_Configuration_Service
 	 * @api
 	 */
-	public static $tcaService;
+	public static $configurationService;
 
 	/**
 	 * @var array
@@ -71,7 +71,7 @@ class Tx_Magic_Core {
 		if (!self::$objectManager) {
 			self::$objectManager = t3lib_div::makeInstance('Tx_Extbase_Object_ObjectManager');
 			self::$annotationParser = self::$objectManager->create('Tx_Magic_Annotation_Parser');
-			self::$tcaService = self::$objectManager->get('Tx_Magic_Service_Tca');
+			self::$configurationService = self::$objectManager->get('Tx_Magic_Configuration_Service');
 			self::$registeredExtensionKeys = array();
 		}
 	}
@@ -89,7 +89,7 @@ class Tx_Magic_Core {
 		if (in_array($extensionKey, self::$registeredExtensionKeys) === FALSE) {
 			$extensionCollection = self::$objectManager->create('Tx_Magic_Collection_ExtensionCollection');
 			$extensionCollection->loadExtensionKey($extensionKey);
-			self::$tcaService->renderTcaForExtension($extensionCollection);
+			self::$configurationService->renderTcaForExtension($extensionCollection);
 			self::$registeredExtensionKeys[$extensionKey] = $extensionCollection;
 		}
 	}

@@ -31,17 +31,15 @@
 class Tx_Magic_Provider_Column_TextColumnProvider extends Tx_Magic_Provider_Column_AbstractColumnProvider implements Tx_Magic_Provider_ColumnProviderInterface {
 
 	/**
-	 * @param string $propertyName
 	 * @return array
 	 */
-	public function getColumn($propertyName) {
-		$config = array(
+	public function generateConfiguration() {
+		$this->configuration = array(
 			'type' => 'text',
 			'cols' => 40,
 			'rows' => 15,
 			'eval' => 'trim'
 		);
-		return $this->render($propertyName, $config);
 	}
 
 }

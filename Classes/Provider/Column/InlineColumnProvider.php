@@ -31,15 +31,15 @@
 class Tx_Magic_Provider_Column_InlineColumnProvider extends Tx_Magic_Provider_Column_AbstractColumnProvider implements Tx_Magic_Provider_ColumnProviderInterface {
 
 	/**
-	 * @param string $propertyName
 	 * @return array
 	 */
-	public function getColumn($propertyName) {
+	public function generateConfiguration() {
+		$propertyName = $this->propertyName;
 		$modelClassName = $this->modelCollection->getClassName();
 		$propertyReflection = $this->reflectionService->getPropertyTagValues($modelClassName, $propertyName, 'var');
 		$foreignTable = strtolower(array_pop(explode('<', trim($propertyReflection[0], '>'))));
 		$foreignField = strtolower(array_pop(explode('_', $modelClassName)));
-		$configuration = array(
+		$this->configuration = array(
 			'type' => 'inline',
 			'foreign_table' => $foreignTable,
 			'foreign_field' => $foreignField,
@@ -52,8 +52,6 @@ class Tx_Magic_Provider_Column_InlineColumnProvider extends Tx_Magic_Provider_Co
 				'showAllLocalizationLink' => 1
 			),
 		);
-		$column = $this->render($propertyName, $configuration);
-		return $column;
 	}
 
 }

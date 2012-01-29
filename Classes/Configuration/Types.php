@@ -26,39 +26,9 @@
 
 /**
  * @package Magic
- * @subpackage Provider
+ * @subpackage Configuration
  */
-interface Tx_Magic_Provider_ColumnProviderInterface extends ArrayAccess {
-
-	/**
-	 * @return array
-	 */
-	public function generateConfiguration();
-
-	/**
-	 * @param Tx_Magic_collection_ModelCollection $modelCollection
-	 */
-	public function setModelCollection($modelCollection);
-
-	/**
-	 * @param string $propertyName
-	 */
-	public function setPropertyName($propertyName);
-
-	/**
-	 * @param array $configuration
-	 */
-	public function setConfiguration($configuration);
-
-	/**
-	 * @param string $label
-	 */
-	public function setLabel($label);
-
-	/**
-	 * @param integer $exclude
-	 */
-	public function setExclude($exclude);
+class Tx_Magic_Configuration_Types {
 
 }
 

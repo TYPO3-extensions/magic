@@ -28,16 +28,18 @@
  * @package Magic
  * @subpackage Provider/Column
  */
-class Tx_Magic_Provider_Column_DefaultColumnProvider extends Tx_Magic_Provider_Column_AbstractColumnProvider implements Tx_Magic_Provider_ColumnProviderInterface {
+class Tx_Magic_Provider_Column_FileColumnProvider extends Tx_Magic_Provider_Column_AbstractColumnProvider implements Tx_Magic_Provider_ColumnProviderInterface {
 
 	/**
-	 * @param string $propertyName
 	 * @return array
 	 */
-	public function getColumn($propertyName) {
-
+	public function generateConfiguration() {
+		$this->configuration = array(
+			'type' => 'group',
+			'internal_type' => 'file',
+			'allowed' => $this->options['allowed']
+		);
 	}
-
 }
 
 ?>
