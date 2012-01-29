@@ -82,15 +82,38 @@ class Tx_Magic_Configuration_Columns {
 	 * @return array
 	 */
 	protected function renderTypesBlock(Tx_Magic_Collection_ModelCollection $modelCollection) {
-		$properties = array();
+		$defaultSheet = 'general';
+		$properties = array($defaultSheet => array());
 		foreach ($modelCollection->getPropertyAnnotations() as $propertyName=>$annotations) {
+			$sheet = $annotations['Field']->getArgument('sheet');
+			if (empty($sheet)) {
+				$sheet = $defaultSheet;
+			}
+			if (isset($properties[$sheet]) === FALSE) {
+				$properties[$sheet] = array();
+			}
 			$underscoredPropertyName = Tx_Extbase_Utility_Extension::convertCamelCaseToLowerCaseUnderscored($propertyName);
-			array_push($properties, $underscoredPropertyName);
+			array_push($properties[$sheet], $underscoredPropertyName);
+		}
+		$lastSheet = $defaultSheet;
+		$showItemString = '';
+		foreach ($properties as $sheet=>$fields) {
+			if ($sheet !== $lastSheet) {
+				$showItemString .= implode('', array(
+					',--div--;LLL:EXT:',
+					$modelCollection->getExtensionKey(),
+					'/Resources/Private/Language/locallang_db.xml:',
+					$modelCollection->getTableName(),
+					'.',
+					$sheet,
+					','));
+			}
+			$showItemString .= implode(', ', $fields);
 		}
 		return array(
 			'1' => array(
 				'showitem' => 'sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, '
-				. implode(', ', $properties) . ',--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'
+				. $showItemString . ',--div--;LLL:EXT:cms/locallang_ttc.xml:tabs.access,starttime, endtime'
 			),
 		);
 	}
