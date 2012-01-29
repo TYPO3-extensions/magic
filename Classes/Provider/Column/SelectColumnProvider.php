@@ -34,14 +34,16 @@ class Tx_Magic_Provider_Column_SelectColumnProvider extends Tx_Magic_Provider_Co
 	 * @return array
 	 */
 	public function generateConfiguration() {
-		if (isset($this->options['range'])) {
-			$items = $this->generateRangeItems($this->options['range'], $this->options['interval']);
-		}
 		$this->configuration = array(
 			'type' => 'select',
 			'mode' => $this->options['mode'],
-			'items' => (array) $items
 		);
+		if (isset($this->options['range'])) {
+			$this->configuration['items'] = $this->generateRangeItems($this->options['range'], $this->options['interval']);
+		} elseif (isset($this->options['foreignTable'])) {
+			$this->configuration['foreign_table'] = $this->options['foreignTable'];
+		}
+
 	}
 
 	/**
