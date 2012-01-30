@@ -28,7 +28,7 @@
  * @package Magic
  * @subpackage Configuration
  */
-class Tx_Magic_Configuration_Columns {
+class Tx_Magic_Configuration_Columns implements t3lib_Singleton {
 
 
 	/**
@@ -85,6 +85,9 @@ class Tx_Magic_Configuration_Columns {
 		$defaultSheet = 'general';
 		$properties = array($defaultSheet => array());
 		foreach ($modelCollection->getPropertyAnnotations() as $propertyName=>$annotations) {
+			if (isset($annotations['Field']) === FALSE) {
+				continue;
+			}
 			$sheet = $annotations['Field']->getArgument('sheet');
 			if (empty($sheet)) {
 				$sheet = $defaultSheet;
@@ -161,10 +164,11 @@ class Tx_Magic_Configuration_Columns {
 			if ($label == '') {
 				$label = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/locallang_db.xml:' . $tableName . '.' . $underScoredPropertyName;
 			}
+			$providerOptions = isset($annotations['Field']) === TRUE ? $annotations['Field']->getArgument('options') : array();
 			$provider = $this->resolveColumnProvider($propertyName, $modelCollection);
 			$provider->setPropertyName($propertyName);
 			$provider->setModelCollection($modelCollection);
-			$provider->setOptions($annotations['Field']->getArgument('options'));
+			$provider->setOptions($providerOptions);
 			$columns[$underScoredPropertyName] = array(
 				'exclude' => intval($exclude),
 				'label' => $label,

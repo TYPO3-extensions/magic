@@ -28,7 +28,7 @@
  * @package Magic
  * @subpackage Configuration
  */
-class Tx_Magic_Configuration_Service {
+class Tx_Magic_Configuration_Service implements t3lib_Singleton {
 
 	/**
 	 * @var Tx_Magic_Configuration_Columns
@@ -36,10 +36,22 @@ class Tx_Magic_Configuration_Service {
 	protected $columnConfigurationService;
 
 	/**
+	 * @var Tx_Magic_Configuration_Schema
+	 */
+	protected $databaseSchemaService;
+
+	/**
 	 * @param Tx_Magic_Configuration_Columns $columnConfigurationService
 	 */
 	public function injectColumnConfigurationService(Tx_Magic_Configuration_Columns $columnConfigurationService) {
 		$this->columnConfigurationService = $columnConfigurationService;
+	}
+
+	/**
+	 * @param Tx_Magic_Configuration_Schema $databaseSchemaService
+	 */
+	public function injectDatabaseSchemaService(Tx_Magic_Configuration_Schema $databaseSchemaService) {
+		$this->databaseSchemaService = $databaseSchemaService;
 	}
 
 	/**
@@ -51,6 +63,7 @@ class Tx_Magic_Configuration_Service {
 	public function renderTcaForExtension(Tx_Magic_Collection_ExtensionCollection $extensionCollection) {
 		foreach ($extensionCollection->getModelCollections() as $modelCollection) {
 			$this->columnConfigurationService->renderTcaForModel($modelCollection);
+			$this->databaseSchemaService->updateDatabaseSchemaForModel($modelCollection);
 		}
 	}
 

@@ -28,7 +28,7 @@
  * @package Magic
  * @subpackage Configuration
  */
-class Tx_Magic_Configuration_Types {
+class Tx_Magic_Configuration_Types implements t3lib_Singleton {
 
 }
 
