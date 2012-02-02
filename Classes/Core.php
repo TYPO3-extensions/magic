@@ -65,10 +65,26 @@ class Tx_Magic_Core {
 	public static $registeredExtensionKeys;
 
 	/**
+	 * @var t3lib_cache_frontend_VariableFrontend
+	 */
+	public static $cache;
+
+	/**
 	 * Constructor
 	 */
 	public static function initializeObject() {
 		if (!self::$objectManager) {
+			try {
+				t3lib_cache::initializeCachingFramework();
+				self::$cache = $GLOBALS['typo3CacheManager']->getCache('magic_cache');
+			} catch (Exception $e) {
+				self::$cache = $GLOBALS['typo3CacheFactory']->create(
+					'magic_cache',
+					$GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['myext_mycache']['frontend'],
+					$GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['myext_mycache']['backend'],
+					$GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['myext_mycache']['options']
+				);
+			}
 			self::$objectManager = t3lib_div::makeInstance('Tx_Extbase_Object_ObjectManager');
 			self::$annotationParser = self::$objectManager->create('Tx_Magic_Annotation_Parser');
 			self::$configurationService = self::$objectManager->get('Tx_Magic_Configuration_Service');

@@ -46,6 +46,28 @@ class Tx_Magic_Collection_ExtensionCollection {
 	protected $modelCollections;
 
 	/**
+	 * @var t3lib_cache_frontend_VariableFrontend
+	 */
+	protected $dataCache;
+
+	/**
+	 * @var string
+	 */
+	protected $dataCacheModelIdentityPrefix = 'magic_models_';
+
+	/**
+	 * @var string
+	 */
+	protected $dataCacheModelFilesIdentityPrefix = 'magic_modelfiles_';
+
+	/**
+	 * Initialize this object instance
+	 */
+	public function initializeObject() {
+		$this->dataCache = $GLOBALS['typo3CacheManager']->getCache('magic_cache');
+	}
+
+	/**
 	 * @param string $extensionKey
 	 */
 	public function loadExtensionKey($extensionKey) {
@@ -53,19 +75,27 @@ class Tx_Magic_Collection_ExtensionCollection {
 		$this->extensionName = Tx_Extbase_Utility_Extension::convertLowerUnderscoreToUpperCamelCase($extensionKey);
 		$modelClassDirectorySubPath = 'Classes/Domain/Model/';
 		$modelClassDirectory = t3lib_extMgm::extPath($extensionKey, $modelClassDirectorySubPath);
-		$modelClassFiles = scandir($modelClassDirectory);
+		$modelClassFiles = $this->dataCache->get($this->dataCacheModelFilesIdentityPrefix . $extensionKey);
+		if ($modelClassFiles === FALSE) {
+			$modelClassFiles = scandir($modelClassDirectory);
+			$this->dataCache->set($this->dataCacheModelFilesIdentityPrefix . $extensionKey, $modelClassFiles);
+		}
 		foreach ($modelClassFiles as $modelClassFileName) {
 			if (is_file($modelClassDirectory . $modelClassFileName)) {
 				$modelName = basename($modelClassFileName, '.php');
 				$className = 'Tx_' . $this->extensionName . '_Domain_Model_' . $modelName;
-				$annotations = Tx_Magic_Core::$annotationParser->getClassAnnotations($className);
-				$propertyAnnotations = Tx_Magic_Core::$annotationParser->getPropertyAnnotations($className);
-				$modelCollection = Tx_Magic_Core::$objectManager->create('Tx_Magic_Collection_ModelCollection');
-				$modelCollection->setName($modelName);
-				$modelCollection->setClassName($className);
-				$modelCollection->setPropertyAnnotations($propertyAnnotations);
-				$modelCollection->setAnnotations($annotations);
-				$modelCollection->setExtensionKey($this->extensionKey);
+				$modelCollection = $this->dataCache->get($this->dataCacheModelIdentityPrefix . $className);
+				if ($modelCollection === FALSE) {
+					$annotations = Tx_Magic_Core::$annotationParser->getClassAnnotations($className);
+					$propertyAnnotations = Tx_Magic_Core::$annotationParser->getPropertyAnnotations($className);
+					$modelCollection = Tx_Magic_Core::$objectManager->create('Tx_Magic_Collection_ModelCollection');
+					$modelCollection->setName($modelName);
+					$modelCollection->setClassName($className);
+					$modelCollection->setPropertyAnnotations($propertyAnnotations);
+					$modelCollection->setAnnotations($annotations);
+					$modelCollection->setExtensionKey($this->extensionKey);
+					$this->dataCache->set($this->dataCacheIdentityPrefix . $className, $modelCollection);
+				}
 				$this->addModelCollection($modelCollection);
 			}
 		}
